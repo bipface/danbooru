@@ -917,14 +917,8 @@ class PostQueryBuilder
     def implicit_metatags
       metatags = []
       metatags << OpenStruct.new(type: :metatag, name: "rating", value: "s") if safe_mode?
-      metatags << OpenStruct.new(type: :metatag, name: "status", value: "deleted", negated: true) if hide_deleted?
+      metatags << OpenStruct.new(type: :metatag, name: "status", value: "deleted", negated: true) unless includes_deleted?(hide_deleted_posts?)
       metatags
-    end
-
-    # XXX unify with PostSets::Post#show_deleted?
-    def hide_deleted?
-      has_status_metatag = select_metatags(:status).any? { |metatag| metatag.value.downcase.in?(%w[deleted active any all unmoderated modqueue appealed]) }
-      hide_deleted_posts? && !has_status_metatag
     end
   end
 
@@ -955,6 +949,10 @@ class PostQueryBuilder
 
     def has_metatag?(*metatag_names)
       metatags.any? { |term| term.name.in?(metatag_names.map(&:to_s).map(&:downcase)) }
+    end
+
+    def has_status_metatag?
+      select_metatags(:status).any? { |metatag| metatag.value.downcase.in?(%w[deleted active any all unmoderated modqueue appealed]) }
     end
 
     def has_single_tag?
@@ -988,6 +986,10 @@ class PostQueryBuilder
 
     def is_wildcard_search?
       is_single_tag? && tags.first.wildcard
+    end
+
+    def includes_deleted?(user_pref_hide_deleted_posts)
+      !user_pref_hide_deleted_posts || has_status_metatag?
     end
 
     def simple_tag

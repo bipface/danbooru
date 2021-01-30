@@ -6,7 +6,8 @@ module PostSets
     attr_reader :page, :random, :post_count, :format, :tag_string, :query, :normalized_query
 
     def initialize(tags, page = 1, per_page = nil, user: CurrentUser.user, random: false, format: "html")
-      @query = PostQueryBuilder.new(tags, user, safe_mode: CurrentUser.safe_mode?, hide_deleted_posts: user.hide_deleted_posts?)
+      @user_pref_hide_deleted_posts = user.hide_deleted_posts?
+      @query = PostQueryBuilder.new(tags, user, safe_mode: CurrentUser.safe_mode?, hide_deleted_posts: @user_pref_hide_deleted_posts)
       @normalized_query = query.normalized_query
       @tag_string = tags
       @page = page
@@ -141,9 +142,7 @@ module PostSets
     end
 
     def show_deleted?
-      query.select_metatags("status").any? do |metatag|
-        metatag.value.in?(%w[all any active unmoderated modqueue deleted appealed])
-      end
+      query.includes_deleted?(@user_pref_hide_deleted_posts)
     end
 
     def search_stats

@@ -6,7 +6,7 @@ class PostPreviewComponent < ApplicationComponent
   attr_reader :post, :tags, :show_deleted, :show_cropped, :link_target, :pool, :pool_id, :favgroup_id, :similarity, :recommended, :compact, :size, :current_user, :options
   delegate :external_link_to, :time_ago_in_words_tagged, :empty_heart_icon, to: :helpers
 
-  def initialize(post:, tags: "", show_deleted: false, show_cropped: true, link_target: post, pool: nil, pool_id: nil, favgroup_id: nil, similarity: nil, recommended: nil, compact: nil, size: nil, current_user: CurrentUser.user, **options)
+  def initialize(post:, tags: "", show_deleted: !CurrentUser.hide_deleted_posts?, show_cropped: true, link_target: post, pool: nil, pool_id: nil, favgroup_id: nil, similarity: nil, recommended: nil, compact: nil, size: nil, current_user: CurrentUser.user, **options)
     @post = post
     @tags = tags
     @show_deleted = show_deleted

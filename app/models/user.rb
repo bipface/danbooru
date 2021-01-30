@@ -691,6 +691,7 @@ class User < ApplicationRecord
   def initialize_attributes
     self.new_post_navigation_layout = true
     self.always_resize_images = true
+    self.hide_deleted_posts = true
   end
 
   def presenter
