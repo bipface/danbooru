@@ -88,11 +88,13 @@ jobs:
       run: bin/rails test
 
     - name: Create HTML test report
+      if: succeeded() || failed()
       run: |
         yarn add xunit-viewer
         node_modules/xunit-viewer/bin/xunit-viewer -r test/reports -o test/reports/index.html
 
     - name: Archive test report
+      if: succeeded() || failed()
       uses: actions/upload-artifact@v2
       with:
         name: test-report
